@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kamonohashi · med | SHARED SHOP</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, monospace; }
+        body { background: #0a0c10; min-height: 100vh; transition: background-image 0.2s; background-size: cover; background-position: center; background-attachment: fixed; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); pointer-events: none; z-index: 0; }
+        .container { position: relative; z-index: 2; max-width: 1300px; margin: 0 auto; padding: 2rem; }
+        .header { background: #0f1117e6; border-bottom: 3px solid #5a3e2b; padding: 1rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .title h1 { color: #cfb284; font-size: 1.8rem; letter-spacing: -1px; }
+        .title p { color: #8a7654; font-size: 0.7rem; }
+        .badge { background: #1e1a14; border-left: 3px solid #aa7c48; padding: 0.2rem 0.8rem; font-size: 0.7rem; color: #c9aa76; }
+        .hamburger { background: #1c1f28; width: 50px; height: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; border: 1px solid #5c4730; }
+        .hamburger span { width: 25px; height: 2px; background: #c7a86b; }
+        .menu-panel { position: absolute; top: 60px; right: 0; width: 280px; background: #101216f2; border: 1px solid #5f4a2e; padding: 1.5rem; display: none; z-index: 1000; }
+        .menu-panel.show { display: block; }
+        .menu-panel input { width: 100%; background: #050608; border: 1px solid #4e3b26; padding: 0.6rem; margin-bottom: 0.8rem; color: #ebdbbc; }
+        .menu-panel button { width: 100%; background: #2a241c; border: 1px solid #8b6942; color: #e2c694; padding: 0.6rem; cursor: pointer; font-weight: bold; }
+        .status { background: #00000066; padding: 0.3rem; text-align: center; font-size: 0.7rem; margin: 10px 0; color: #b99e6f; }
+        .upload-area { background: #0b0d12e6; border: 1px solid #5c432b; padding: 1.5rem; margin-bottom: 2rem; }
+        .upload-area h3 { color: #dbb67b; margin-bottom: 1rem; }
+        input, textarea { width: 100%; background: #010101; border: 1px solid #6a4f30; padding: 0.7rem; color: #efe3cf; margin-bottom: 1rem; }
+        .file-drop { border: 2px dashed #6a4f30; padding: 1rem; text-align: center; cursor: pointer; background: #00000055; color: #b68b4a; margin-bottom: 1rem; }
+        .preview { max-width: 100px; margin-top: 5px; border: 1px solid #7b5a38; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 2rem; margin-top: 1rem; }
+        .card { background: #0c0e13e0; border: 1px solid #5d432b; }
+        .card-img { width: 100%; height: 250px; object-fit: cover; }
+        .card-info { padding: 1.2rem; }
+        .card-title { font-size: 1.1rem; font-weight: bold; color: #e2c28b; }
+        .card-desc { font-size: 0.8rem; color: #aca68b; margin: 0.5rem 0; }
+        .contact-row { display: flex; gap: 10px; margin: 10px 0; border-top: 1px solid #4a3824; padding-top: 10px; }
+        .contact-btn { background: #26221c; padding: 0.3rem 0.8rem; font-size: 0.7rem; text-decoration: none; color: #f0cf9c; border: 1px solid #7f623e; }
+        .delete-btn { background: #381f12; border: none; color: #e7bf8b; padding: 0.2rem 0.8rem; font-size: 0.7rem; cursor: pointer; margin-top: 8px; }
+        .bg-control { position: fixed; bottom: 20px; left: 20px; background: #0b0e14cc; border: 1px solid #6f5133; padding: 0.4rem 0.9rem; display: none; gap: 8px; z-index: 30; }
+        .bg-control label { color: #ccaa6e; cursor: pointer; }
+        .footer { text-align: center; margin-top: 3rem; padding: 0.8rem; color: #a28658; font-size: 0.7rem; }
+        .menu-container { position: relative; }
+        .hidden { display: none; }
+        button, input, .contact-btn { border-radius: 0px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="title">
+            <h1>KAMONOHASHI / MED</h1>
+            <p>⚡ GLOBAL SHOP · CHANGES FOR EVERYONE</p>
+            <span class="badge">only admins can upload/delete/change bg</span>
+        </div>
+        <div class="menu-container">
+            <div class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></div>
+            <div class="menu-panel" id="menuPanel">
+                <h4 style="color:#cb9e62">ADMIN ACCESS</h4>
+                <input type="text" id="loginUser" placeholder="username">
+                <input type="password" id="loginPass" placeholder="password">
+                <button id="doLoginBtn">LOGIN</button>
+                <div id="statusMsg" class="status">🔒 VIEW ONLY</div>
+                <button id="doLogoutBtn" style="display:none;">LOGOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="uploadPanel" style="display:none;">
+        <div class="upload-area">
+            <h3>➕ ADD ITEM</h3>
+            <div class="file-drop" id="dropZone">📂 CLICK OR DRAG IMAGE<input type="file" id="productImage" style="display:none;"></div>
+            <img id="imagePreview" class="preview" style="display:none;">
+            <input type="text" id="itemCaption" placeholder="CAPTION / TITLE">
+            <textarea id="itemDesc" rows="2" placeholder="DESCRIPTION"></textarea>
+            <button id="publishBtn" style="background:#3f2c1a; color:#ebcf9a; padding:0.7rem; width:100%;">PUBLISH ITEM</button>
+        </div>
+    </div>
+
+    <h2 style="color:#c6a169;">// INVENTORY //</h2>
+    <div id="productGrid" class="grid"><div style="text-align:center; padding:2rem;">loading...</div></div>
+    <div class="footer">⟡ CONTACT UNDER EACH PHOTO | EVERYONE SEES SAME DATA ⟡</div>
+</div>
+
+<div id="bgTool" class="bg-control">
+    <label for="bgUploadInput">🎨 SET BACKGROUND</label>
+    <input type="file" id="bgUploadInput" accept="image/*" style="display:none;">
+    <button id="resetBgBtn" style="background:none; border:none; color:#bf8a4a; cursor:pointer;">RESET</button>
+</div>
+
+<script>
+    const API = '';
+    let isAdmin = false;
+    let currentAdmin = '';
+
+    async function fetchProducts() {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        renderProducts(data);
+    }
+
+    async function fetchBackground() {
+        const res = await fetch('/api/background');
+        const data = await res.json();
+        if (data.background) {
+            document.body.style.backgroundImage = `url(${data.background})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+        } else {
+            document.body.style.backgroundImage = '';
+            document.body.style.background = '#0a0c10';
+        }
+    }
+
+    function renderProducts(products) {
+        const grid = document.getElementById('productGrid');
+        if (!products.length) {
+            grid.innerHTML = '<div style="text-align:center; padding:2rem; color:#7c6948;">NO ITEMS — ADMINS CAN UPLOAD</div>';
+            return;
+        }
+        let html = '';
+        for (let p of products) {
+            html += `
+                <div class="card">
+                    <img class="card-img" src="${p.image_path}" onerror="this.src='https://placehold.co/600x400/000/886e44?text=ERR'">
+                    <div class="card-info">
+                        <div class="card-title">${escapeHtml(p.caption)}</div>
+                        <div class="card-desc">${escapeHtml(p.description || '')}</div>
+                        <div class="contact-row">
+                            <a href="https://t.me/kamonohashi12" target="_blank" class="contact-btn">⚔️ KAMONOHASHI</a>
+                            <a href="https://t.me/medsvl" target="_blank" class="contact-btn">🗡️ MED</a>
+                        </div>
+                        ${isAdmin ? `<button class="delete-btn" data-id="${p.id}">✖ DELETE</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        grid.innerHTML = html;
+        if (isAdmin) {
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = btn.getAttribute('data-id');
+                    if (!confirm('DELETE PERMANENTLY?')) return;
+                    const res = await fetch(`/api/products/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ adminUser: currentAdmin, adminPass: getPassForUser() })
+                    });
+                    if (res.ok) { fetchProducts(); }
+                    else alert('Only kamonohashi/med can delete');
+                });
+            });
+        }
+    }
+
+    function getPassForUser() {
+        if (currentAdmin === 'kamonohashi') return 'kamoSecret2025';
+        if (currentAdmin === 'med') return 'medVault123';
+        return '';
+    }
+
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    document.getElementById('doLoginBtn').addEventListener('click', () => {
+        const user = document.getElementById('loginUser').value.trim();
+        const pass = document.getElementById('loginPass').value;
+        if ((user === 'kamonohashi' && pass === 'kamoSecret2025') || (user === 'med' && pass === 'medVault123')) {
+            isAdmin = true;
+            currentAdmin = user;
+            document.getElementById('statusMsg').innerHTML = `✅ ${user.toUpperCase()} · ADMIN`;
+            document.getElementById('doLoginBtn').style.display = 'none';
+            document.getElementById('doLogoutBtn').style.display = 'block';
+            document.getElementById('uploadPanel').style.display = 'block';
+            document.getElementById('bgTool').style.display = 'flex';
+            fetchProducts();
+        } else {
+            alert('DENIED. Only kamonohashi & med.');
+        }
+        document.getElementById('loginUser').value = '';
+        document.getElementById('loginPass').value = '';
+        document.getElementById('menuPanel').classList.remove('show');
+    });
+
+    document.getElementById('doLogoutBtn').addEventListener('click', () => {
+        isAdmin = false;
+        currentAdmin = '';
+        document.getElementById('statusMsg').innerHTML = '🔒 VIEW ONLY';
+        document.getElementById('doLoginBtn').style.display = 'block';
+        document.getElementById('doLogoutBtn').style.display = 'none';
+        document.getElementById('uploadPanel').style.display = 'none';
+        document.getElementById('bgTool').style.display = 'none';
+        fetchProducts();
+    });
+
+    let currentImageData = null;
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('productImage');
+    const preview = document.getElementById('imagePreview');
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => e.preventDefault());
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = ev => { currentImageData = ev.target.result; preview.src = currentImageData; preview.style.display = 'block'; };
+            reader.readAsDataURL(file);
+        }
+    });
+    fileInput.addEventListener('change', e => {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = ev => { currentImageData = ev.target.result; preview.src = currentImageData; preview.style.display = 'block'; };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', async () => {
+        if (!isAdmin) { alert('Only admins'); return; }
+        const caption = document.getElementById('itemCaption').value;
+        if (!caption || !currentImageData) { alert('Image and caption required'); return; }
+        const res = await fetch('/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                adminUser: currentAdmin,
+                adminPass: getPassForUser(),
+                imageDataUrl: currentImageData,
+                caption: caption,
+                description: document.getElementById('itemDesc').value
+            })
+        });
+        if (res.ok) {
+            currentImageData = null;
+            preview.style.display = 'none';
+            document.getElementById('itemCaption').value = '';
+            document.getElementById('itemDesc').value = '';
+            fetchProducts();
+        } else alert('Upload failed');
+    });
+
+    const bgInput = document.getElementById('bgUploadInput');
+    const bgLabel = document.querySelector('#bgTool label');
+    bgLabel.addEventListener('click', () => bgInput.click());
+    bgInput.addEventListener('change', async (e) => {
+        if (!isAdmin) { alert('Only admins can change background'); return; }
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const res = await fetch('/api/background', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        adminUser: currentAdmin,
+                        adminPass: getPassForUser(),
+                        backgroundUrl: ev.target.result
+                    })
+                });
+                if (res.ok) fetchBackground();
+                else alert('Only admins can change bg');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    document.getElementById('resetBgBtn').addEventListener('click', async () => {
+        if (!isAdmin) { alert('Only admins'); return; }
+        const res = await fetch('/api/background', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ adminUser: currentAdmin, adminPass: getPassForUser(), backgroundUrl: '' })
+        });
+        if (res.ok) fetchBackground();
+    });
+
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const menuPanelDiv = document.getElementById('menuPanel');
+    hamburgerBtn.addEventListener('click', (e) => { e.stopPropagation(); menuPanelDiv.classList.toggle('show'); });
+    document.addEventListener('click', (e) => { if (!menuPanelDiv.contains(e.target) && !hamburgerBtn.contains(e.target)) menuPanelDiv.classList.remove('show'); });
+
+    fetchProducts();
+    fetchBackground();
+</script>
+</body>
+</html>
